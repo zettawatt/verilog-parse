@@ -43,7 +43,15 @@
 ;; FIXME: User configuration info here
 
 ;;; Code:
+
+;; Required Packages
 (require 'verilog-mode)
+
+(defvar *verilog-parse-database* nil
+  "Hash table of all information parsed by 'verparse-parse-source-files'")
+
+(defun verparse-parse-source-files files
+  "Parse all verilog files in FILES and update '*verilog-parse-database*'")
 
 (provide 'verilog-parse)
 ;;; verilog-parse.el ends here
