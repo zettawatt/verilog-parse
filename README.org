@@ -1,0 +1,63 @@
+* Description
+~verilog-parse~ is an IDE extension to the existing verilog-mode. This mode leverages
+~verilog-mode~'s syntax knowledge to quickly analyze Verilog/SystemVerilog files,
+developing an internal database that can be queried for information:
+- signal tracing through design hierarchy
+- module declaration searching without a special comment footer in each file
+- parameter values
+- `define values
+- class definition searching
+
+/Thought: may want to call this mode ~verilog-mode+~ since it leverages from ~verilog-mode~ ?/
+* Brainstorm
+Putting down a bunch of ideas to sort through. Starting to analyze ~verilog-mode.el~
+for more information and ideas.
+** General idea
+   - Several EIEIO classes will be created to store data:
+     - Each block (module, interface, package etc.) will be instanced as they are found
+       in the design.
+     - Each signal or net will be instanced as they are found in the design
+     - methods will be used to act upon these objects for signal tracing, value
+       lookups, etc.
+*** Tool Flow
+    - Read in all verilog design files by loading a ~*.f~ file, setting a *defcustom*
+      variable, etc.
+    - Go through each file found and open in a new buffer
+    - Parse each buffer in 2 passes
+      1. look for ~`include~ and ~`define~ statements before module/package/interface
+         declarations. Load ~`defines~ into a hash table for quick lookup. When the
+         block type is found create a new object. Go to the next block in the buffer.
+         When all blocks in the buffer have been found, go to the next buffer
+      2. Go through each block looking for ports and their directions. Create net
+         objects for these as they are found.
+    - If going with net objects instead of local signals, a 3rd pass may be to
+      collaps the signal objects into net objects that span hierarchies.
+      - Knowing where all the signals are driven and loaded will make searching
+        for these very simple in their related methods
+** Design import
+   - Have a function that reads in a verilog ~*.f~ files and instantiates the objects
+     - Function parses ~*.f~ files for relevant files and directories
+     - Can recycle the ~verilog-library-flags~, ~verilog-library-files~, and
+       ~verilog-library-extensions~ *defcustom* variables for this?
+   - Special comments at the end of each processed line would allow scope limiting
+     when searching through the design. Would be nice to have features like:
+     - don't descend into a module looking for signal declarations, only parse
+       the input/output/inout signals for information
+       - useful for behavioral models or standard cell logic (netlists)
+     - ignore parsing certain modules or ~*.f~ lines to speed up read in
+     - applying constraints to a ~*.f~ file or ~-y~ applies to everything related
+** Parsing verilog files
+   - Utilize the ~verilog-beg-of-defun~ and ~verilog-end-of-defun~ functions
+     to quickly parse through modules, packages, interfaces
+   - Utilize the ~verilog-beg-of-statement~ and ~verilog-end-of-statement~ functions
+     to quickly walk through the relevant constructs
+** Dynamically add/remove objects
+   - Ideally, this mode will be able to add and remove signal and block objects
+     on the fly while typing without having to reparse the design
+   - See the ~electric-verilog-semi~ function for an example of a function that
+     performs operations on the fly while typing
+** ~verilog-mode~ Indent changes
+   - Some guys have been griping about how ~verilog-mode~ indents in certain
+     situations. As an add-on to ~verilog-mode~, this tool could tweak that
+     behavior if it isn't already modifiable through *defcustom* changes
+
