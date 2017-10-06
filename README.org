@@ -8,7 +8,7 @@ developing an internal database that can be queried for information:
 - `define values
 - class definition searching
 
-/Thought: may want to call this mode ~verilog-mode+~ since it leverages from ~verilog-mode~ ?/
+/Thought: may want to call this mode/ ~verilog-mode+~ /since it leverages from/ ~verilog-mode~ /?/
 * Brainstorm
 Putting down a bunch of ideas to sort through. Starting to analyze ~verilog-mode.el~
 for more information and ideas.
@@ -60,4 +60,22 @@ for more information and ideas.
    - Some guys have been griping about how ~verilog-mode~ indents in certain
      situations. As an add-on to ~verilog-mode~, this tool could tweak that
      behavior if it isn't already modifiable through *defcustom* changes
+** speedbar
+   - when creating objects use the ~eieio-speedbar~ base class to allow for 
+     speedbar to show all of the objects in a tree
+** folding
+   - allow folding of modules, always blocks, classes, etc.
+** auto complete
+   - utilize the AutoComplete library to do expansion of structs, interfaces
+     port names, etc. whenever a ~.~ is typed after a valid object with
+     completion candidates
+   - Should be able to keep the existing ~.*~ expansion available in ~verilog-mode~
+** documentation enhancements
+   - look for the same types of comment strings above modules, classes, functions, etc.
+     that eclipse uses
+   - when point or mouse is over a symbol with an associated comment, issue a key
+     command and display that text in the minibuffer
+** minibuffer enhancements
+   - when typing a function or class, display the arguments required in the minibuffer
+     - like what elisp mode does
 
