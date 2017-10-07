@@ -46,22 +46,45 @@
 
 ;; Required Packages
 (require 'verilog-mode)
+(require 'eieio-base)
+(require 'eieio-speedbar)
 
-(defvar *svlog-database* nil
-  "Hash table of all information parsed by 'verparse-parse-source-files'")
+(defvar *svlog-defines* nil
+  "Hash table of all `defines in the design")
+
+(defvar *svlog-modules* nil
+  "List of all modules in the design")
+
+(defvar *svlog-objects-file* nil
+  "File to store all instances of SV objects")
 
 ;; Base class of all objects
-(defclass svlog-object ()
+(defclass svlog-object (eieio-instance-tracker eieio-persistent)
   ((buffer
     :initarg :buffer
-    :initform (error "Must supply a buffer name.")
     :accessor buffer
-    :documentation "The buffer containing the SV object")
+    :documentation "The buffer containing the SV object. If buffer is closed,
+open the file indicated by 'svlog-file'")
+   (comment
+    :initarg :comment
+    :accessor comment
+    :documentation "Comment header found describing the SV object")
+   (svlog-file
+    :initarg :svlog-file
+    :initform (error "Must supply a file name of where to find the object.")
+    :accessor svlog-file
+    :documentation "The file in which to find the SV object.")
    (file
     :initarg :file
-    :initform (error "Must supply a file name.")
+    :initform *svlog-objects-file*
     :accessor file
-    :documentation "The file containing the SV object")))
+    :allocation :class
+    :documentation "The file in which to save SV objects")
+   (name
+    :initarg :name
+    :initform (error "Must supply an object name.")
+    :accessor name
+    :documentation "The name of the SV object.")))
 
 (defgeneric svlog-goto-defun (object)
   "Go to the SV object definition or assignment.")
@@ -70,7 +93,11 @@
   "List the SV object instances or loads.")
 
 ;; Block type classes
-(defclass svlog-module (svlog-object)
+(defclass svlog-block (svlog-object eieio-speedbar-directory-button)
+  ()
+  "Block type classes of SV objects")
+
+(defclass svlog-module (svlog-block)
   ((parent-module
     :initarg :parent-module
     :accessor parent-module
@@ -82,32 +109,45 @@
    (ports
     :initarg :ports
     :accessor ports
-    :documentation "Associative array of all ports of this module."))
+    :documentation "Associative array of all ports of this module.")
+   (signals
+    :initarg :signals
+    :accessor signals
+    :documentation "Associative array of all local signals of this module.")
+   (tracker-symbol
+    :initarg :tracker-symbol
+    :initform '*svlog-modules*
+    :accessor tracker-symbol
+    :documentation "List of all module objects."))
   "SV 'module' object")
 
-(defclass svlog-package (svlog-object)
+(defclass svlog-package (svlog-block)
   ()
   "SV 'package' object")
 
-(defclass svlog-interface (svlog-object)
+(defclass svlog-interface (svlog-block)
   ()
   "SV 'interface' object")
 
-(defclass svlog-class (svlog-object)
+(defclass svlog-class (svlog-block)
   ()
   "SV 'class' object")
 
-(defclass svlog-task-function (svlog-object)
+(defclass svlog-task-function (svlog-block)
   ()
   "SV 'function' and 'task' object")
 
 
 ;; Signal type classes
-(defclass svlog-input (svlog-object)
+(defclass svlog-signal (svlog-object eieio-speedbar-file-button)
+  ()
+  "Signal type classes of SV objects")
+
+(defclass svlog-input (svlog-signal)
   ()
   "Module 'input' object")
 
-(defclass svlog-output (svlog-object)
+(defclass svlog-output (svlog-signal)
   ()
   "Module 'output' object")
 
@@ -115,25 +155,21 @@
   ()
   "Module 'inout' object")
 
-(defclass svlog-var (svlog-object)
+(defclass svlog-var (svlog-signal)
   ()
   "Module local variable or wire object")
 
-(defclass svlog-struct (svlog-object)
+(defclass svlog-struct (svlog-signal)
   ()
   "SV 'struct' or 'enum' objects")
 
 
 ;; Constant type classes
-(defclass svlog-parameter (svlog-object)
+(defclass svlog-parameter (svlog-signal)
   ()
   "SV 'parameter' object")
 
-(defclass svlog-define (svlog-object)
-  ()
-  "SV '`define\' object")
-
-(defclass svlog-constant (svlog-object)
+(defclass svlog-constant (svlog-signal)
   ()
   "SV 'const' or 'localparam' objects")
 
