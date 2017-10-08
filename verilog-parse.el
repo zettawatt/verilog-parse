@@ -11,7 +11,7 @@
 ;; Created:          30 Sep 2017
 ;; Keywords:         verilog, SystemVerilog, ide, asic, hdl
 ;; Compatibility:    GNU 25.x
-;; Package-Requires: ((emacs "25") (verilog-mode))
+;; Package-Requires: ((emacs "25") (verilog-mode) (eieio-base) (eieio-speedbar))
 
 ;; This file is not part of GNU Emacs
 
@@ -69,20 +69,14 @@ open the file indicated by 'svlog-file'")
     :initarg :comment
     :accessor comment
     :documentation "Comment header found describing the SV object")
-   (svlog-file
-    :initarg :svlog-file
-    :initform (error "Must supply a file name of where to find the object.")
-    :accessor svlog-file
-    :documentation "The file in which to find the SV object.")
    (file
-    :initarg :file
     :initform *svlog-objects-file*
     :accessor file
     :allocation :class
     :documentation "The file in which to save SV objects")
    (name
     :initarg :name
-    :initform (error "Must supply an object name.")
+;    :initform (error "Must supply an object name.")
     :accessor name
     :documentation "The name of the SV object.")))
 
@@ -94,14 +88,18 @@ open the file indicated by 'svlog-file'")
 
 ;; Block type classes
 (defclass svlog-block (svlog-object eieio-speedbar-directory-button)
-  ()
+  ((svlog-file
+    :initarg :svlog-file
+;    :initform (error "Must supply a file name of where to find the object.")
+    :accessor svlog-file
+    :documentation "The file in which to find the SV object."))
   "Block type classes of SV objects")
 
 (defclass svlog-module (svlog-block)
   ((parent-module
     :initarg :parent-module
     :accessor parent-module
-    :documentation "The parent module this module is instantiated in.")
+    :documentation "The parent module this module instance is instantiated in.")
    (child-modules
     :initarg :child-modules
     :accessor child-modules
@@ -145,19 +143,15 @@ open the file indicated by 'svlog-file'")
 
 (defclass svlog-input (svlog-signal)
   ()
-  "Module 'input' object")
+  "Input signal objects")
 
 (defclass svlog-output (svlog-signal)
   ()
-  "Module 'output' object")
+  "Output signal objects")
 
 (defclass svlog-inout (svlog-input svlog-output)
   ()
-  "Module 'inout' object")
-
-(defclass svlog-var (svlog-signal)
-  ()
-  "Module local variable or wire object")
+  "Inout signal objects")
 
 (defclass svlog-struct (svlog-signal)
   ()
@@ -173,9 +167,28 @@ open the file indicated by 'svlog-file'")
   ()
   "SV 'const' or 'localparam' objects")
 
+;;; Functions
 
-(defun verparse-parse-source-files files
-  "Parse all verilog files in FILES and update '*verilog-parse-database*'")
+(defun svlog-parse-source-files (&rest files)
+  "Parse all verilog files in FILES and update '*verilog-parse-database*'"
+  (interactive)
+  (message "Parsing Verilog files...")
+; loop through each file
+; call `svlog-parse-f-file' function to process each *.f file and build a list
+; of files to parse
+
+; loop through each found verilog file
+; call `svlog-parse-file' function to create objects
+  )
+
+(defun svlog-parse-file (file search)
+  "Parse a verilog FILE for objects and create them.
+The SEARCH function defines how the search if performed")
+
+(defun svlog-parse-f-file (file)
+  "Parse a verilog *.f FILE for specific verilog files to open
+and directories to search for verilog files.
+Set defines if they are found along the way with +DEFINE+")
 
 (provide 'verilog-parse)
 ;;; verilog-parse.el ends here
