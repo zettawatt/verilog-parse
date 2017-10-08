@@ -174,8 +174,19 @@ open the file indicated by 'svlog-file'")
   (interactive)
   (message "Parsing Verilog files...")
 ; loop through each file
-; call `svlog-parse-f-file' function to process each *.f file and build a list
-; of files to parse
+  (dolist (file files)
+; FIXME: use `verilog-getopt-file' for this operation??
+; note that `verilog-getopt-flags' will try to set the variables as
+; buffer local. want them to be global on a per project basis
+; may need to link in with projectile somehow to get 'project' awareness
+; will probably just copy the verilog-library-* variables to global
+; variables and use those only for this mode. Then they won't clobber what
+; `verilog-mode' already does
+; Also could just copy the `verilog-getopt' code local and modify it
+; to what we need and just cite `verilog-mode' as the original source for
+; the function. probably the best route. also want to be able to
+; expand out directories to get a pure list of files for the next step
+    (verilog-getopt-file file))
 
 ; loop through each found verilog file
 ; call `svlog-parse-file' function to create objects
@@ -184,11 +195,6 @@ open the file indicated by 'svlog-file'")
 (defun svlog-parse-file (file search)
   "Parse a verilog FILE for objects and create them.
 The SEARCH function defines how the search if performed")
-
-(defun svlog-parse-f-file (file)
-  "Parse a verilog *.f FILE for specific verilog files to open
-and directories to search for verilog files.
-Set defines if they are found along the way with +DEFINE+")
 
 (provide 'verilog-parse)
 ;;; verilog-parse.el ends here

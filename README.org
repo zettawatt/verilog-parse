@@ -56,10 +56,16 @@ for more information and ideas.
      on the fly while typing without having to reparse the design
    - See the ~electric-verilog-semi~ function for an example of a function that
      performs operations on the fly while typing
-** ~verilog-mode~ Indent changes
+** ~verilog-mode~ changes
    - Some guys have been griping about how ~verilog-mode~ indents in certain
      situations. As an add-on to ~verilog-mode~, this tool could tweak that
      behavior if it isn't already modifiable through *defcustom* changes
+   - set the ~verilog-auto-inst-dot-name~ variable so that AUTSOINST will put
+     in .name syntax instead of the verbose variant
+   - set the ~verilog-auto-star-expand~ variable so that ~.*~ port names are
+     expanded
+     - also need to set the ~verilog-auto-star-save~ variable so that they
+       will be saved in expanded form for people with inferior editors
 ** speedbar
    - when creating objects use the ~eieio-speedbar~ base class to allow for 
      speedbar to show all of the objects in a tree
