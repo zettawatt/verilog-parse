@@ -84,4 +84,14 @@ for more information and ideas.
 ** minibuffer enhancements
    - when typing a function or class, display the arguments required in the minibuffer
      - like what elisp mode does
-
+** reload speed
+   - write out the objects into a file that can be read into the tool without having
+     to parse verilog files. should be much faster.
+     - have a batch mode call that can do this on the side as an async process and
+       by a continuous integration tool when code is committed into a repository
+   - in the ~*.f~ files, be able to call certain files static so that they don't
+     have to be reloaded, just take the associated objects file instead and update
+     things like instantiated module or external parameters/defines
+   - when boucing around to different projects with projectile, should be able
+     to have a project specific ~*.f~ file that gets called automatically and loads
+     the prebuilt objects file if it exists
